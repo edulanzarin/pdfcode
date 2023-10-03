@@ -17,7 +17,7 @@ class PDFCodeApp:
     def __init__(self, root):
         self.root = root
         self.root.title("PDFCode")
-        self.root.geometry("600x350")
+        self.root.geometry("700x400")
         icon_path = r".\assets\icon.ico"
         self.root.iconbitmap(icon_path)
 
@@ -54,7 +54,7 @@ class PDFCodeApp:
             style="Custom.TCombobox",
             state="readonly",
         )
-        self.empresa_menu.pack(pady=20, padx=20, fill=tk.X)
+        self.empresa_menu.pack(pady=40, padx=20, fill=tk.X)
 
         self.button_style = ttk.Style()
         self.button_style.configure("TButton", font=("Arial", 12))
