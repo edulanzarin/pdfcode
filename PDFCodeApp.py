@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import ttk, filedialog
 from ttkthemes import ThemedStyle
 import threading
 import PyPDF2
@@ -25,79 +25,85 @@ class PDFCodeApp:
         self.selected_empresa_var = tk.StringVar(self.root)
         self.selected_empresa_var.set("Qualitplacas")
 
+        self.progress_bar = ttk.Progressbar(self.root, mode="determinate")
+        self.progress_bar.pack_forget()  # Oculta a barra de progresso inicialmente
+
         self.create_widgets()
 
     def create_widgets(self):
         style = ThemedStyle(self.root)
-        style.set_theme("vista")
-        style.configure("TCombobox", padding=7, borderwidth=2, relief="solid")
+        style.set_theme(
+            "arc"
+        )  # Altere o tema para o tema "arc" para uma aparência mais moderna
+
+        self.combobox_style = ttk.Style()
+        self.combobox_style.configure(
+            "Custom.TCombobox",
+            font=("Arial", 12),
+            padding=7,
+            borderwidth=2,
+            relief="solid",
+        )
 
         empresas = ["Qualitplacas", "Lojão Astral", "Capital Six", "Empório Astral"]
         self.empresa_menu = ttk.Combobox(
             self.root,
             textvariable=self.selected_empresa_var,
             values=empresas,
-            font=("Arial", 10),
+            font=("Arial", 12),  # Aumente o tamanho da fonte
+            style="Custom.TCombobox",
+            state="readonly",
         )
-        self.empresa_menu.bind("<Enter>", self.change_cursor)
-        self.empresa_menu.pack(pady=20)
+        self.empresa_menu.pack(pady=20, padx=20, fill=tk.X)
+
+        self.button_style = ttk.Style()
+        self.button_style.configure("TButton", font=("Arial", 12))
 
         self.select_button = ttk.Button(
             self.root,
             text="Selecionar PDF",
             command=self.select_pdf,
-            width=22,
+            width=20,
             padding=10,
+            style="TButton",
         )
-        self.select_button.bind("<Enter>", self.change_cursor)
         self.select_button.pack(pady=20)
 
         self.process_button = ttk.Button(
             self.root,
             text="Processar PDF",
             command=self.processar_pdf_thread,
-            width=22,
+            width=20,
             padding=10,
+            style="TButton",
         )
-        self.process_button.bind("<Enter>", self.change_cursor)
         self.process_button.pack(pady=15)
         self.process_button.config(state="disabled")
 
-        self.status_label = ttk.Label(self.root, text="", font=("Arial", 10))
-        self.status_label.pack()
-
-        self.progress_bar = ttk.Progressbar(self.root, mode="determinate")
-        self.progress_bar.pack_forget()
-
-        if datetime.datetime.now() > data_validade:
-            self.status_label.config(text="A licença expirou.")
-            self.process_button.config(state="disabled")
-            self.select_button.config(state="disabled")
-            self.empresa_menu.config(state="disabled")
+        self.status_label = ttk.Label(self.root, text="", font=("Arial", 12))
+        self.status_label.pack(pady=10)
 
     def select_pdf(self):
         self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
         if self.file_path:
             file_name = os.path.basename(self.file_path)
-            self.status_label.config(text=f"{file_name}")
+            self.status_label.config(text=f"Arquivo Selecionado: {file_name}")
             self.process_button.config(state="normal")
+            self.progress_bar.pack_forget()  # Oculta a barra de progresso
         else:
             self.status_label.config(text="Nenhum arquivo PDF selecionado.")
             self.process_button.config(state="disabled")
 
-    def change_cursor(self, event):
-        self.select_button.config(cursor="hand2")
-        self.process_button.config(cursor="hand2")
-        self.empresa_menu.config(cursor="hand2")
-
     def processar_pdf_thread(self):
         self.process_button.config(state="disabled")
-        self.progress_bar.pack(pady=20)
-
         pdf_thread = threading.Thread(target=self.processar_pdf)
         pdf_thread.start()
 
     def processar_pdf(self):
+        self.progress_bar.pack(
+            pady=20, padx=20, fill=tk.X
+        )  # Mostra a barra de progresso
+
         with open(self.file_path, "rb") as pdf_file:
             dados_pdf = PyPDF2.PdfReader(pdf_file)
 
