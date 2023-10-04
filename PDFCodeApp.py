@@ -83,6 +83,14 @@ class PDFCodeApp:
         self.status_label = ttk.Label(self.root, text="", font=("Arial", 12))
         self.status_label.pack(pady=10)
 
+        if datetime.datetime.now() > data_validade:
+            self.status_label = ttk.Label(self.root, text="Licença expirada.")
+            self.status_label.pack(pady=10)
+            self.process_button.config(state="disabled")
+            self.select_button.config(state="disabled")
+            self.empresa_menu.config(state="disabled")
+            return
+
     def select_pdf(self):
         self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
         if self.file_path:
