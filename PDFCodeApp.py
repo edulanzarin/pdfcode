@@ -23,7 +23,7 @@ class PDFCodeApp:
 
         self.file_path = None
         self.selected_empresa_var = tk.StringVar(self.root)
-        self.selected_empresa_var.set("Qualitplacas")
+        self.selected_empresa_var.set("")
 
         self.progress_bar = ttk.Progressbar(self.root, mode="determinate")
         self.progress_bar.pack_forget()  # Oculta a barra de progresso inicialmente
@@ -45,7 +45,17 @@ class PDFCodeApp:
             relief="solid",
         )
 
-        empresas = ["Qualitplacas", "Lojão Astral", "Capital Six", "Empório Astral"]
+        empresas = [
+            "CAPITAL SIX",
+            "CENTRAL DE COMPRAS",
+            "CH COMÉRCIO",
+            "COMERCIAL MCD",
+            "EMPÓRIO ASTRAL",
+            "JGS COMÉRCIO",
+            "LOJA ASTRAL",
+            "QUALITPLACAS",
+            "SF COMÉRCIO",
+        ]
         self.empresa_menu = ttk.Combobox(
             self.root,
             textvariable=self.selected_empresa_var,
@@ -110,17 +120,24 @@ class PDFCodeApp:
             selected_empresa = self.selected_empresa_var.get()
 
             if (
-                selected_empresa == "Capital Six"
-                or selected_empresa == "Empório Astral"
+                selected_empresa == "CAPITAL SIX"
+                or selected_empresa == "EMPÓRIO ASTRAL"
             ):
                 # Chame a função de processamento para a empresa Empório Astral
                 df = process_capital_emporio(dados_pdf, self.progress_bar)
 
-            elif selected_empresa == "Lojão Astral":
+            elif (
+                selected_empresa == "CENTRAL DE COMPRAS"
+                or selected_empresa == "CH COMÉRCIO"
+                or selected_empresa == "COMERCIAL MCD"
+                or selected_empresa == "JGS COMÉRCIO"
+                or selected_empresa == "LOJA ASTRAL"
+                or selected_empresa == "SF COMÉRCIO"
+            ):
                 # Chame a função de processamento para a empresa Capital Six
                 df = process_lojao(dados_pdf, self.progress_bar)
 
-            elif selected_empresa == "Qualitplacas":
+            elif selected_empresa == "QUALITPLACAS":
                 # Chame a função de processamento para a empresa Qualitplacas
                 df = process_qualitplacas(dados_pdf, self.progress_bar)
 

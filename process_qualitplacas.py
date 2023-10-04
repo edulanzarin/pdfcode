@@ -179,8 +179,3 @@ def process_qualitplacas(dados_pdf, progress_bar):
     df_styled = df_styled.applymap(lambda x: "color: blue", subset=["DESCONTO"])
 
     return df_styled  # Certifique-se de que você está retornando o DataFrame aqui
-
-    df_styled = process_capital_emporio(dados_pdf, self.progress_bar)
-
-    # Retorne o DataFrame estilizado para a função main()
-    return df_styled

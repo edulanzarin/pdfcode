@@ -8,7 +8,14 @@ def process_lojao(dados_pdf, progress_bar):
     linhas_quebra = 0
     contador_linhas = 0
     fornecedor_atual = None
-    quebra_condicao = "LOJÃO"
+    quebra_condicao = [
+        "11-CENTRAL",
+        "09-LOJÃO",
+        "05-LOJÃO",
+        "13-JGS",
+        "01-LOJÃO",
+        "03-LOJÃO",
+    ]
     linhas_imprimir = False
 
     total_pages = len(dados_pdf.pages)
@@ -20,7 +27,7 @@ def process_lojao(dados_pdf, progress_bar):
         quebra_pagina = False  # Adicione essa linha para inicializar a variável
 
         for linha in linhas:
-            if quebra_condicao in linha:
+            if any(condicao in linha for condicao in quebra_condicao):
                 quebra_pagina = True
                 linhas_quebra = 0
                 contador_linhas = 0
@@ -103,8 +110,3 @@ def process_lojao(dados_pdf, progress_bar):
     df_styled = df.style.applymap(lambda x: "color: red", subset=["VALOR"])
 
     return df_styled  # Certifique-se de que você está retornando o DataFrame aqui
-
-    df_styled = process_capital_emporio(dados_pdf, self.progress_bar)
-
-    # Retorne o DataFrame estilizado para a função main()
-    return df_styled

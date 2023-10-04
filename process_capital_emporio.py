@@ -66,8 +66,3 @@ def process_capital_emporio(dados_pdf, progress_bar):
     df_styled = df.style.applymap(lambda x: "color: red", subset=["VALOR"])
 
     return df_styled  # Certifique-se de que você está retornando o DataFrame aqui
-
-    df_styled = process_capital_emporio(dados_pdf, self.progress_bar)
-
-    # Retorne o DataFrame estilizado para a função main()
-    return df_styled
