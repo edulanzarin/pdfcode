@@ -164,7 +164,8 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                     registros_qualitplacas.append(
                                         {
                                             "DATA": data,
-                                            "FORNECEDOR": fornecedor + " " + nota,
+                                            "FORNECEDOR": fornecedor,
+                                            "NOTA": nota,
                                             "VALOR": valor,
                                             "DESCONTO": credito,
                                         }
