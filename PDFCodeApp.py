@@ -9,8 +9,19 @@ import datetime
 from process_capital_emporio import process_capital_emporio
 from process_lojao import process_lojao
 from process_qualitplacas import process_qualitplacas
+from process_sicredi import process_sicredi
 
 data_validade = datetime.datetime(2023, 12, 1)
+
+# Dicionário que mapeia empresas para seus bancos correspondentes
+empresa_bancos = {
+    "CAPITAL SIX": ["SICREDI"],
+    "EMPÓRIO ASTRAL": ["Banco X", "Banco Y", "Banco Z"],
+    "QUALITPLACAS": ["Banco P", "Banco Q", "Banco R"],
+    "CENTRAL DE COMPRAS": ["SICREDI"],
+    "CH COMÉRCIO": ["SICREDI"]
+    # Adicione outras empresas e bancos conforme necessário
+}
 
 
 class PDFCodeApp:
@@ -24,6 +35,9 @@ class PDFCodeApp:
         self.file_path = None
         self.selected_empresa_var = tk.StringVar(self.root)
         self.selected_empresa_var.set("")
+
+        self.selected_bank_var = tk.StringVar(self.root)
+        self.selected_bank_var.set("")  # Valor inicial vazio para o banco
 
         self.progress_bar = ttk.Progressbar(self.root, mode="determinate")
         self.progress_bar.pack_forget()  # Oculta a barra de progresso inicialmente
@@ -45,17 +59,7 @@ class PDFCodeApp:
             relief="solid",
         )
 
-        empresas = [
-            "CAPITAL SIX",
-            "CENTRAL DE COMPRAS",
-            "CH COMÉRCIO",
-            "COMERCIAL MCD",
-            "EMPÓRIO ASTRAL",
-            "JGS COMÉRCIO",
-            "LOJA ASTRAL",
-            "QUALITPLACAS",
-            "SF COMÉRCIO",
-        ]
+        empresas = list(empresa_bancos.keys())
         self.empresa_menu = ttk.Combobox(
             self.root,
             textvariable=self.selected_empresa_var,
@@ -65,6 +69,17 @@ class PDFCodeApp:
             state="readonly",
         )
         self.empresa_menu.pack(pady=40, padx=20, fill=tk.X)
+
+        # Inicialize o menu suspenso do banco com a lista de bancos vazia
+        self.bank_menu = ttk.Combobox(
+            self.root,
+            textvariable=self.selected_bank_var,
+            values=[],
+            font=("Arial", 12),  # Aumente o tamanho da fonte
+            style="Custom.TCombobox",
+            state="readonly",
+        )
+        self.bank_menu.pack(pady=20, padx=20, fill=tk.X)
 
         self.button_style = ttk.Style()
         self.button_style.configure("TButton", font=("Arial", 12))
@@ -77,7 +92,7 @@ class PDFCodeApp:
             padding=10,
             style="TButton",
         )
-        self.select_button.pack(pady=20)
+        self.select_button.pack(pady=15)
 
         self.process_button = ttk.Button(
             self.root,
@@ -99,7 +114,26 @@ class PDFCodeApp:
             self.process_button.config(state="disabled")
             self.select_button.config(state="disabled")
             self.empresa_menu.config(state="disabled")
+            self.bank_menu.config(state="disabled")
             return
+
+        # Atualize a lista de bancos com base na empresa selecionada
+        self.update_bank_menu()
+
+    def update_bank_menu(self, *args):
+        selected_empresa = self.selected_empresa_var.get()
+        if selected_empresa in empresa_bancos:
+            bancos = empresa_bancos[selected_empresa]
+            self.bank_menu["values"] = bancos
+            self.selected_bank_var.set(
+                bancos[0]
+            )  # Seleciona o primeiro banco como padrão
+        else:
+            self.bank_menu["values"] = []
+            self.selected_bank_var.set("")
+
+            # Adicione o rastreador de evento ao menu suspenso de empresas
+            self.empresa_menu.bind("<<ComboboxSelected>>", self.update_bank_menu)
 
     def select_pdf(self):
         self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
@@ -126,6 +160,14 @@ class PDFCodeApp:
             dados_pdf = PyPDF2.PdfReader(pdf_file)
 
             selected_empresa = self.selected_empresa_var.get()
+            selected_bank = self.selected_bank_var.get()  # Obtém o banco selecionado
+
+            if selected_bank == "Banco A":
+                # Processar com base no banco A
+                pass
+            elif selected_bank == "Banco B":
+                # Processar com base no banco B
+                pass
 
             if (
                 selected_empresa == "CAPITAL SIX"
