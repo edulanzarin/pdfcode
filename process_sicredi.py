@@ -67,7 +67,7 @@ def process_sicredi(dados_pdf):
                     if pagamento.endswith(substituicao):
                         pagamento = pagamento[:-2] + substituicao[-2]
 
-                descricao = " ".join(partes[1:-3])
+                descricao = " ".join(partes[1:-2])
 
                 data_list.append(data)
                 descricao_list.append(descricao)

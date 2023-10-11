@@ -20,7 +20,7 @@ empresa_bancos = {
     "CENTRAL DE COMPRAS": ["SICREDI"],
     "CH COMÉRCIO": ["SICREDI"],
     "COMERCIAL MCD": ["SICREDI"],
-    "EMPÓRIO ASTRAL": ["Banco X", "Banco Y", "Banco Z"],
+    "EMPÓRIO ASTRAL": ["SICREDI"],
     "JGS COMÉRCIO": ["SICREDI"],
     "LOJA ASTRAL COMÉRCIO": ["SICREDI"],
     "SF COMÉRCIO": ["SICREDI"],
