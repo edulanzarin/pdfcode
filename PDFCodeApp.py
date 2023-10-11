@@ -5,36 +5,63 @@ import threading
 import PyPDF2
 import os
 import datetime
+import pandas as pd
 
 from process_capital_emporio import process_capital_emporio
 from process_lojao import process_lojao
 from process_qualitplacas import process_qualitplacas
+from process_sicredi import process_sicredi
 
 data_validade = datetime.datetime(2023, 12, 1)
+
+# Dicionário que mapeia empresas para seus bancos correspondentes
+empresa_bancos = {
+    "CAPITAL SIX": ["SICREDI"],
+    "CENTRAL DE COMPRAS": ["SICREDI"],
+    "CH COMÉRCIO": ["SICREDI"],
+    "COMERCIAL MCD": ["SICREDI"],
+    "EMPÓRIO ASTRAL": ["Banco X", "Banco Y", "Banco Z"],
+    "JGS COMÉRCIO": ["SICREDI"],
+    "LOJA ASTRAL COMÉRCIO": ["SICREDI"],
+    "SF COMÉRCIO": ["SICREDI"],
+    "QUALITPLACAS": ["Banco P", "Banco Q", "Banco R"],
+    # Adicione outras empresas e bancos conforme necessário
+}
 
 
 class PDFCodeApp:
     def __init__(self, root):
         self.root = root
         self.root.title("PDFCode")
-        self.root.geometry("700x400")
+        self.root.geometry("700x470")
         icon_path = r".\assets\icon.ico"
         self.root.iconbitmap(icon_path)
 
-        self.file_path = None
+        self.empresa_file_path = None
+        self.bank_file_path = None
+        self.empresa_df = None
+        self.bank_df = None
+
         self.selected_empresa_var = tk.StringVar(self.root)
         self.selected_empresa_var.set("")
 
+        self.selected_bank_var = tk.StringVar(self.root)
+        self.selected_bank_var.set("")
+
+        self.enable_bank_selection = (
+            True  # Variável para habilitar/desabilitar seleção do banco
+        )
+
         self.progress_bar = ttk.Progressbar(self.root, mode="determinate")
-        self.progress_bar.pack_forget()  # Oculta a barra de progresso inicialmente
+        self.progress_bar.pack_forget()
+
+        self.process_bank_button_enabled = False
 
         self.create_widgets()
 
     def create_widgets(self):
         style = ThemedStyle(self.root)
-        style.set_theme(
-            "arc"
-        )  # Altere o tema para o tema "arc" para uma aparência mais moderna
+        style.set_theme("arc")
 
         self.combobox_style = ttk.Style()
         self.combobox_style.configure(
@@ -45,49 +72,71 @@ class PDFCodeApp:
             relief="solid",
         )
 
-        empresas = [
-            "CAPITAL SIX",
-            "CENTRAL DE COMPRAS",
-            "CH COMÉRCIO",
-            "COMERCIAL MCD",
-            "EMPÓRIO ASTRAL",
-            "JGS COMÉRCIO",
-            "LOJA ASTRAL",
-            "QUALITPLACAS",
-            "SF COMÉRCIO",
-        ]
+        empresas = list(empresa_bancos.keys())
+
+        # Frame para as ComboBoxes de seleção
+        combobox_frame = ttk.Frame(self.root)
+        combobox_frame.pack(pady=50)
+
         self.empresa_menu = ttk.Combobox(
-            self.root,
+            combobox_frame,
             textvariable=self.selected_empresa_var,
             values=empresas,
-            font=("Arial", 12),  # Aumente o tamanho da fonte
+            font=("Arial", 12),
             style="Custom.TCombobox",
             state="readonly",
         )
-        self.empresa_menu.pack(pady=40, padx=20, fill=tk.X)
+        self.empresa_menu.grid(row=0, column=0, padx=10)
+
+        self.bank_menu = ttk.Combobox(
+            combobox_frame,
+            textvariable=self.selected_bank_var,
+            values=[],
+            font=("Arial", 12),
+            style="Custom.TCombobox",
+            state="readonly",
+        )
+        self.bank_menu.grid(row=0, column=1, padx=10)
+
+        # Frame para os botões
+        button_frame = ttk.Frame(self.root)
+        button_frame.pack(pady=30)
 
         self.button_style = ttk.Style()
         self.button_style.configure("TButton", font=("Arial", 12))
 
-        self.select_button = ttk.Button(
-            self.root,
-            text="Selecionar PDF",
-            command=self.select_pdf,
-            width=20,
+        self.select_empresa_button = ttk.Button(
+            button_frame,
+            text="Relatório",
+            command=self.select_empresa_pdf,
+            width=25,
             padding=10,
             style="TButton",
         )
-        self.select_button.pack(pady=20)
+        self.select_empresa_button.grid(row=0, column=0)
+
+        self.select_bank_button = ttk.Button(
+            button_frame,
+            text="Extrato",
+            command=self.select_bank_pdf,
+            width=25,
+            padding=10,
+            style="TButton",
+        )
+        self.select_bank_button.grid(row=0, column=1)
+
+        process_button_frame = ttk.Frame(self.root)
+        process_button_frame.pack(pady=20)
 
         self.process_button = ttk.Button(
-            self.root,
+            process_button_frame,
             text="Processar PDF",
             command=self.processar_pdf_thread,
             width=20,
             padding=10,
             style="TButton",
         )
-        self.process_button.pack(pady=15)
+        self.process_button.pack()
         self.process_button.config(state="disabled")
 
         self.status_label = ttk.Label(self.root, text="", font=("Arial", 12))
@@ -97,19 +146,67 @@ class PDFCodeApp:
             self.status_label = ttk.Label(self.root, text="Licença expirada.")
             self.status_label.pack(pady=10)
             self.process_button.config(state="disabled")
-            self.select_button.config(state="disabled")
+            self.select_empresa_button.config(state="disabled")
+            self.select_bank_button.config(state="disabled")
             self.empresa_menu.config(state="disabled")
+            self.bank_menu.config(state="disabled")
             return
 
-    def select_pdf(self):
-        self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
-        if self.file_path:
-            file_name = os.path.basename(self.file_path)
-            self.status_label.config(text=f"Arquivo Selecionado: {file_name}")
-            self.process_button.config(state="normal")
-            self.progress_bar.pack_forget()  # Oculta a barra de progresso
+        self.check_process_button_state()
+
+        self.empresa_menu.bind("<<ComboboxSelected>>", self.update_bank_menu)
+
+    def update_bank_menu(self, *args):
+        selected_empresa = self.selected_empresa_var.get()
+        if selected_empresa in empresa_bancos:
+            bancos = empresa_bancos[selected_empresa]
+            self.bank_menu["values"] = bancos
+            self.selected_bank_var.set("")
+            self.enable_bank_selection = True  # Habilitar seleção do banco
         else:
-            self.status_label.config(text="Nenhum arquivo PDF selecionado.")
+            self.bank_menu["values"] = []
+            self.selected_bank_var.set("")
+            self.enable_bank_selection = False  # Desabilitar seleção do banco
+
+        if selected_empresa == "QUALITPLACAS":
+            self.bank_menu.grid_forget()
+            self.select_bank_button.grid_forget()
+        else:
+            self.bank_menu.grid(row=0, column=1, padx=10)
+            self.select_bank_button.grid(row=0, column=2)
+
+        self.check_process_button_state()  # Verifique o estado do botão de processamento
+
+    def select_empresa_pdf(self):
+        self.empresa_file_path = filedialog.askopenfilename(
+            filetypes=[("PDF files", "*.pdf")]
+        )
+        if self.empresa_file_path:
+            file_name = os.path.basename(self.empresa_file_path)
+            self.status_label.config(text=f"PDF da Empresa Selecionado: {file_name}")
+            self.check_process_button_state()
+
+    def select_bank_pdf(self):
+        selected_bank = self.selected_bank_var.get()
+        if selected_bank:
+            self.bank_file_path = filedialog.askopenfilename(
+                filetypes=[("PDF files", "*.pdf")]
+            )
+            if self.bank_file_path:
+                file_name = os.path.basename(self.bank_file_path)
+                self.status_label.config(text=f"PDF do Banco Selecionado: {file_name}")
+                self.check_process_button_state()
+
+    def check_process_button_state(self):
+        selected_empresa = self.selected_empresa_var.get()
+        selected_bank = self.selected_bank_var.get()
+
+        if self.empresa_file_path and (
+            (selected_bank and self.bank_file_path)
+            or not self.process_bank_button_enabled
+        ):
+            self.process_button.config(state="normal")
+        else:
             self.process_button.config(state="disabled")
 
     def processar_pdf_thread(self):
@@ -118,21 +215,33 @@ class PDFCodeApp:
         pdf_thread.start()
 
     def processar_pdf(self):
-        self.progress_bar.pack(
-            pady=20, padx=20, fill=tk.X
-        )  # Mostra a barra de progresso
+        self.progress_bar.pack(pady=20, padx=20, fill=tk.X)
 
-        with open(self.file_path, "rb") as pdf_file:
-            dados_pdf = PyPDF2.PdfReader(pdf_file)
+        selected_empresa = self.selected_empresa_var.get()
+        selected_bank = self.selected_bank_var.get()
 
-            selected_empresa = self.selected_empresa_var.get()
+        if self.empresa_file_path is None:
+            self.status_label.config(text="Selecione o PDF da empresa primeiro.")
+            self.progress_bar.pack_forget()
+            return
+
+        if selected_empresa == "QUALITPLACAS":
+            # Se QUALITPLACAS for selecionada, não processar o PDF do banco
+            self.bank_file_path = None
+
+        with open(self.empresa_file_path, "rb") as empresa_pdf_file:
+            dados_empresa_pdf = PyPDF2.PdfReader(empresa_pdf_file)
+
+            self.empresa_df = None
+            self.bank_df = None
 
             if (
                 selected_empresa == "CAPITAL SIX"
                 or selected_empresa == "EMPÓRIO ASTRAL"
             ):
-                # Chame a função de processamento para a empresa Empório Astral
-                df = process_capital_emporio(dados_pdf, self.progress_bar)
+                self.empresa_df = process_capital_emporio(
+                    dados_empresa_pdf, self.progress_bar
+                )
 
             elif (
                 selected_empresa == "CENTRAL DE COMPRAS"
@@ -142,14 +251,19 @@ class PDFCodeApp:
                 or selected_empresa == "LOJA ASTRAL"
                 or selected_empresa == "SF COMÉRCIO"
             ):
-                # Chame a função de processamento para a empresa Capital Six
-                df = process_lojao(dados_pdf, self.progress_bar)
+                self.empresa_df = process_lojao(dados_empresa_pdf, self.progress_bar)
 
             elif selected_empresa == "QUALITPLACAS":
-                # Chame a função de processamento para a empresa Qualitplacas
-                df = process_qualitplacas(dados_pdf, self.progress_bar)
+                self.empresa_df = process_qualitplacas(
+                    dados_empresa_pdf, self.progress_bar
+                )
 
-            if selected_empresa:
+            if selected_bank == "SICREDI" and self.bank_file_path:
+                with open(self.bank_file_path, "rb") as bank_pdf_file:
+                    dados_bank_pdf = PyPDF2.PdfReader(bank_pdf_file)
+                    self.bank_df = process_sicredi(dados_bank_pdf)
+
+            if self.empresa_df is not None:
                 save_path = filedialog.asksaveasfilename(
                     defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")]
                 )
@@ -157,10 +271,23 @@ class PDFCodeApp:
                     self.status_label.config(
                         text="Nenhum local de salvamento selecionado."
                     )
-                    self.progress_bar.pack_forget()  # Oculta a barra de progresso
+                    self.progress_bar.pack_forget()
                     return
 
-                df.to_excel(save_path, index=False)
+                with pd.ExcelWriter(save_path, engine="xlsxwriter") as writer:
+                    self.empresa_df.to_excel(
+                        writer, sheet_name="Planilha1", index=False
+                    )
+                    if self.bank_df is not None:
+                        self.bank_df.to_excel(
+                            writer, sheet_name="Planilha2", index=False
+                        )
+
+                worksheet = writer.sheets['Planilha1']
+                worksheet.set_column('D:D', None, None, {'num_format': 'General'})
+                if self.bank_df is not None:
+                    worksheet = writer.sheets['Planilha2']
+                    worksheet.set_column('D:D', None, None, {'num_format': 'General'})        
 
         self.progress_bar.pack_forget()
         self.root.after(10, self.finish_processing)

@@ -1,4 +1,3 @@
-import PyPDF2
 import pandas as pd
 
 
@@ -27,8 +26,20 @@ def process_capital_emporio(dados_pdf, progress_bar):
                 and "RETIRADA SOCIOS" not in linha
                 and "SEM PORTADOR" not in linha
             ):
+                if "-" in partes[0] and "/" in partes[0]:
+                    partes[0] = partes[0].split("-")[0]
+                elif "-" in partes[0]:
+                    partes[0] = ""
+                elif "/" in partes[0]:
+                    partes[0] = partes[0].split("/")[0]
+                elif "." in partes[0]:
+                    partes[0] = partes[0].split(".")[0]
+
                 numero_duplicata = partes[0]
-                nome_empresa = " ".join(partes[1:-4] + ["NF" + numero_duplicata])
+                numero_duplicata = "".join(
+                    e for e in numero_duplicata if not e.isalpha()
+                )  # Remove letras da numero_duplicata
+                nome_empresa = " ".join(partes[1:-4])
                 data_vencimento = "N/A"
                 valor = partes[-1]
 
@@ -56,6 +67,7 @@ def process_capital_emporio(dados_pdf, progress_bar):
                     {
                         "DATA": data_vencimento,
                         "FORNECEDOR": nome_empresa,
+                        "NOTA": numero_duplicata,
                         "VALOR": valor,
                     }
                 )

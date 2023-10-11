@@ -1,4 +1,3 @@
-import PyPDF2
 import pandas as pd
 import re
 
@@ -7,7 +6,6 @@ def process_qualitplacas(dados_pdf, progress_bar):
     registros_qualitplacas = []
     linhas_imprimir = False
     linha_anterior_valor_zero = False
-    valores_por_dia = {}
     linhas_impressas = 0  # Dicionário para armazenar os valores por dia
     quebra_condicao = "QUALITPLACAS"
 
@@ -102,15 +100,9 @@ def process_qualitplacas(dados_pdf, progress_bar):
                             ):
                                 if valor == credito:
                                     linha_anterior_valor_zero = False
-                                    if data in valores_por_dia:
-                                        valores_por_dia[data] -= float(valor)
                                     valor = ""
                                 else:
                                     linha_anterior_valor_zero = False
-                                    if data not in valores_por_dia:
-                                        valores_por_dia[data] = float(valor)
-                                    else:
-                                        valores_por_dia[data] += float(valor)
                             else:
                                 linha_anterior_valor_zero = True
                         else:
@@ -135,6 +127,10 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                         "REC.REF.DOC.:AGR", ""
                                     )
                                     if "-" in partes[0]:
+                                        partes[0] = partes[0].split("-")[1]
+                                    if "/" in partes[0]:
+                                        partes[0] = partes[0].split("/")[1]
+                                    if "-" in partes[0]:
                                         partes[0] = partes[0].split("-", 1)[1].lstrip()
                                 if "SACADO" in linha:
                                     partes[1] = partes[1].replace("SACADO:", "")
@@ -144,7 +140,6 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                         partes[1] = partes[1].split("-", 1)[0].lstrip()
                                     if "/" in partes[1]:
                                         partes[1] = partes[1].split("/", 1)[0].lstrip()
-                                    nota = partes[1]
                                     fornecedor = "DESCONTO DO TITULO " + nota
                                 else:
                                     if "-" in partes[1]:
@@ -157,6 +152,8 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                     fornecedor = " ".join(partes[1:])
                                     nota = partes[0]
 
+                                    nota = re.sub(r"[a-zA-Z]", "", nota)
+
                                     current_page += 1
                                     progress_value = (current_page / total_pages) * 100
                                     progress_bar["value"] = progress_value
@@ -164,7 +161,8 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                     registros_qualitplacas.append(
                                         {
                                             "DATA": data,
-                                            "FORNECEDOR": fornecedor + " " + nota,
+                                            "FORNECEDOR": fornecedor,
+                                            "NOTA": nota,
                                             "VALOR": valor,
                                             "DESCONTO": credito,
                                         }

@@ -1,4 +1,3 @@
-import PyPDF2
 import pandas as pd
 import re
 
@@ -54,6 +53,22 @@ def process_lojao(dados_pdf, progress_bar):
                 elif fornecedor_atual:
                     partes = linha.split()
                     if len(partes) >= 11:
+                        nota = (
+                            partes[2]
+                            if "NF" in partes[1] or "NF" in partes[1]
+                            else partes[1]
+                        )
+
+                        if "/" in nota:
+                            nota = nota.split("/")[0]
+                        elif "." in nota:
+                            nota = nota.split(".")[0]
+                        elif "," in nota:
+                            nota = nota.split(",")[0]
+
+                        nota = re.sub(r"[a-zA-Z]", "", nota)
+                        nota = nota.replace(":", "")
+
                         datas = re.findall(r"\d{2}/\d{2}/\d{4}", linha)
                         valores = re.findall(r"\d+(?:\.\d+,\d+|\.\d+,\d+|\,\d+)", linha)
                         # Realizar substituições em uma lista de valores
@@ -93,7 +108,8 @@ def process_lojao(dados_pdf, progress_bar):
                         pagamentos_fornecedor_atual.append(
                             {
                                 "DATA": datas[2] if datas and len(datas) > 2 else "",
-                                "FORNECEDOR": fornecedor_atual + " " + "NF" + partes[1],
+                                "FORNECEDOR": fornecedor_atual,
+                                "NOTA": nota,
                                 "VALOR": (valores[1])
                                 if valores and len(valores) > 1
                                 else "",
