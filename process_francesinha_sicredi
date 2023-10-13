@@ -1,0 +1,76 @@
+import PyPDF2
+import tkinter as tk
+from tkinter import filedialog
+import pandas as pd
+
+def select_pdf():
+    root = tk.Tk()
+    root.withdraw()  # Ocultar a janela principal
+    file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
+    return file_path
+
+def process_francesinha_sicredi():
+    file_path = select_pdf()
+
+    if not file_path:
+        print("Nenhum arquivo PDF selecionado.")
+        return
+
+    # Abrir o arquivo PDF selecionado
+    with open(file_path, "rb") as pdf_file:
+        dados_pdf = PyPDF2.PdfReader(pdf_file)
+        linhas_imprimir = True
+        valor_list = []
+        recebido_list = []
+        diferenca_list = []
+
+        for pagina in dados_pdf.pages:
+            texto_pagina = pagina.extract_text()
+            linhas = texto_pagina.split("\n")
+
+            for linha in linhas:
+                if "LIQUIDADO" not in linha:
+                    linhas_imprimir = False
+                else:
+                    linhas_imprimir = True
+
+                if "Valor Liquidado" not in linha and linhas_imprimir:
+                    partes = linha.split()
+                    if len(partes) >= 6:
+                        if partes[-2] == "LIQUIDADO":
+                            valor_str = partes[-4]
+                            recebido_str = partes[-3]
+                            try:
+                                valor = float(valor_str.replace(".", "").replace(",", "."))
+                                recebido = float(recebido_str.replace(".", "").replace(",", "."))
+                                diferenca = recebido - valor
+                            except ValueError:
+                                valor = None
+                                recebido = None
+                                diferenca = None
+                        else:
+                            valor = None
+                            recebido = None
+                            diferenca = None
+
+                        if diferenca != 0:
+                            valor_list.append(valor)
+                            recebido_list.append(recebido)
+                            diferenca_list.append(diferenca)
+
+    # Criar um DataFrame com os dados
+    df = pd.DataFrame(
+        {"VALOR": valor_list, "RECEBIDO": recebido_list, "DIFERENCA": diferenca_list}
+    )
+
+    # Solicitar o local para salvar o arquivo Excel
+    save_path = filedialog.asksaveasfilename(
+        defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")]
+    )
+    if save_path:
+        # Salvar o DataFrame como um arquivo Excel
+        df.to_excel(save_path, index=False)
+        print(f"Arquivo Excel salvo em: {save_path}")
+
+if __name__ == "__main__":
+    process_francesinha_sicredi()
