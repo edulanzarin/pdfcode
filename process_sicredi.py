@@ -89,7 +89,6 @@ def process_sicredi(dados_pdf, progress_bar):
         {
             "DATA": data_list,
             "DESCRICAO": descricao_list,
-            "NOTA": "",
             "VALOR": valor_list,
             "PAGAMENTO": pagamento_list,
         }

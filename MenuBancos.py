@@ -6,9 +6,11 @@ import PyPDF2
 import os
 import pandas as pd
 from process_sicredi import process_sicredi
+from process_safra import process_safra
 
 bancos = [
     "SICREDI",
+    "SAFRA",
 ]
 
 
@@ -56,7 +58,7 @@ class MenuBancos:
             combobox_frame,
             textvariable=self.selected_empresa_var,
             values=bancos,
-            font=("Arial", 12),
+            font=("Arial", 10),
             style="Custom.TCombobox",
             state="readonly",
             width=30,
@@ -124,6 +126,10 @@ class MenuBancos:
 
                 if banco_selecionado == "SICREDI":
                     self.empresa_df = process_sicredi(
+                        dados_empresa_pdf, self.progress_bar
+                    )
+                if banco_selecionado == "SAFRA":
+                    self.empresa_df = process_safra(
                         dados_empresa_pdf, self.progress_bar
                     )
 

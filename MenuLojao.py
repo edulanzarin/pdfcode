@@ -61,7 +61,7 @@ class MenuLojao:
             combobox_frame,
             textvariable=self.selected_empresa_var,
             values=empresas,
-            font=("Arial", 12),
+            font=("Arial", 10),
             style="Custom.TCombobox",
             state="readonly",
             width=30,
