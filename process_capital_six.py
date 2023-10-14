@@ -1,8 +1,8 @@
 import pandas as pd
 
 
-def process_capital_emporio(dados_pdf, progress_bar):
-    registros_capital_emporio = []
+def process_capital_six(dados_pdf, progress_bar):
+    registros_capital_six = []
 
     total_pages = len(dados_pdf.pages)
     current_page = 0
@@ -63,7 +63,7 @@ def process_capital_emporio(dados_pdf, progress_bar):
                 progress_value = (current_page / total_pages) * 100
                 progress_bar["value"] = progress_value
 
-                registros_capital_emporio.append(
+                registros_capital_six.append(
                     {
                         "DATA": data_vencimento,
                         "FORNECEDOR": nome_empresa,
@@ -72,7 +72,7 @@ def process_capital_emporio(dados_pdf, progress_bar):
                     }
                 )
 
-    df = pd.DataFrame(registros_capital_emporio)
+    df = pd.DataFrame(registros_capital_six)
     progress_bar["value"] = 100
 
     df_styled = df.style.applymap(lambda x: "color: red", subset=["VALOR"])

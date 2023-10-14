@@ -3,13 +3,16 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 
-def process_sicredi(dados_pdf):
+
+def process_sicredi(dados_pdf, progress_bar):
     data_list = []
     descricao_list = []
     valor_list = []
     pagamento_list = []
-
     linhas_imprimir = True  # Variável de controle para a primeira página
+
+    total_pages = len(dados_pdf.pages)
+    current_page = 0
 
     for pagina_num, pagina in enumerate(dados_pdf.pages, 1):
         texto_pagina = pagina.extract_text()
@@ -50,8 +53,8 @@ def process_sicredi(dados_pdf):
                     .replace(",", ".")
                     .replace(".00", "")
                     .replace("-", "")
-                    )
-                
+                )
+
                 for substituicao in substituicoes:
                     if valor.endswith(substituicao):
                         valor = valor[:-2] + substituicao[-2]
@@ -61,13 +64,17 @@ def process_sicredi(dados_pdf):
                     .replace(",", ".")
                     .replace(".00", "")
                     .replace("-", "")
-                    )
-                
+                )
+
                 for substituicao in substituicoes:
                     if pagamento.endswith(substituicao):
                         pagamento = pagamento[:-2] + substituicao[-2]
 
                 descricao = " ".join(partes[1:-2])
+
+                current_page += 1
+                progress_value = (current_page / total_pages) * 100
+                progress_bar["value"] = progress_value
 
                 data_list.append(data)
                 descricao_list.append(descricao)
@@ -84,8 +91,9 @@ def process_sicredi(dados_pdf):
             "DESCRICAO": descricao_list,
             "NOTA": "",
             "VALOR": valor_list,
-            "PAGAMENTO": pagamento_list
+            "PAGAMENTO": pagamento_list,
         }
     )
+    progress_bar["value"] = 100
 
     return df

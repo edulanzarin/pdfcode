@@ -7,7 +7,7 @@ import os
 import datetime
 import pandas as pd
 
-from process_capital_emporio import process_capital_emporio
+from process_capital_six import process_capital_six
 from process_lojao import process_lojao
 from process_qualitplacas import process_qualitplacas
 from process_sicredi import process_sicredi
@@ -235,11 +235,8 @@ class PDFCodeApp:
             self.empresa_df = None
             self.bank_df = None
 
-            if (
-                selected_empresa == "CAPITAL SIX"
-                or selected_empresa == "EMPÓRIO ASTRAL"
-            ):
-                self.empresa_df = process_capital_emporio(
+            if selected_empresa == "CAPITAL SIX":
+                self.empresa_df = process_capital_six(
                     dados_empresa_pdf, self.progress_bar
                 )
 
@@ -283,11 +280,11 @@ class PDFCodeApp:
                             writer, sheet_name="Planilha2", index=False
                         )
 
-                worksheet = writer.sheets['Planilha1']
-                worksheet.set_column('D:D', None, None, {'num_format': 'General'})
+                worksheet = writer.sheets["Planilha1"]
+                worksheet.set_column("D:D", None, None, {"num_format": "General"})
                 if self.bank_df is not None:
-                    worksheet = writer.sheets['Planilha2']
-                    worksheet.set_column('D:D', None, None, {'num_format': 'General'})        
+                    worksheet = writer.sheets["Planilha2"]
+                    worksheet.set_column("D:D", None, None, {"num_format": "General"})
 
         self.progress_bar.pack_forget()
         self.root.after(10, self.finish_processing)
