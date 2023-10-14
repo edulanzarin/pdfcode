@@ -2,10 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedStyle
 
-from process_capital_six import process_capital_six
-from process_lojao import process_lojao
-from process_qualitplacas import process_qualitplacas
-from process_sicredi import process_sicredi
 from MenuCapitalSix import MenuCapitalSix
 from MenuLojao import MenuLojao
 from MenuQualitplacas import MenuQualitplacas
@@ -25,17 +21,19 @@ def main():
     tab_control = ttk.Notebook(root)
     tab_control.pack(expand=1, fill="both")
 
-    # Guia para o Qualitplacas (Agora será a aba "Lojão")
+    # Guia para Lojão
     lojao_tab = ttk.Frame(tab_control)
     tab_control.add(lojao_tab, text="    Lojão    ")
 
-    # Guia para o Capital Six
+    # Guia para Capital Six
     capital_six_tab = ttk.Frame(tab_control)
     tab_control.add(capital_six_tab, text="Capital Six")
 
+    # Guia para Qualitplacas
     qualitplacas_tab = ttk.Frame(tab_control)
     tab_control.add(qualitplacas_tab, text="Qualitplacas")
 
+    # Guia para Bancos
     bancos_tab = ttk.Frame(tab_control)
     tab_control.add(bancos_tab, text="   Bancos   ")
 

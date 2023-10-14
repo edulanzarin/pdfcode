@@ -100,7 +100,7 @@ class MenuBancos:
         )
         if self.empresa_file_path:
             file_name = os.path.basename(self.empresa_file_path)
-            self.status_label.config(text=f"PDF da Empresa Selecionado: {file_name}")
+            self.status_label.config(text=f"Extrato: {file_name}")
             self.check_process_button_state()
 
     def check_process_button_state(self):
