@@ -1,4 +1,3 @@
-import PyPDF2
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill

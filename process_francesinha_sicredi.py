@@ -1,4 +1,3 @@
-import PyPDF2
 import pandas as pd
 from tqdm import tqdm
 

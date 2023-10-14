@@ -92,7 +92,7 @@ class MenuQualitplacas:
                 )
 
         if self.empresa_df is not None:
-            self.save_dataframe(self.empresa_df, "Empresa")
+            self.save_dataframe(self.empresa_df, "Planilha1")
 
         self.progress_bar.pack_forget()
         self.root.after(10, self.finish_processing)
