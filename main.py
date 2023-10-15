@@ -6,6 +6,7 @@ from MenuCapitalSix import MenuCapitalSix
 from MenuLojao import MenuLojao
 from MenuQualitplacas import MenuQualitplacas
 from MenuBancos import MenuBancos
+from MenuEmporio import MenuEmporio
 
 
 def main():
@@ -25,6 +26,10 @@ def main():
     lojao_tab = ttk.Frame(tab_control)
     tab_control.add(lojao_tab, text="    Lojão    ")
 
+    # Guia para Empório Astral
+    emporio_tab = ttk.Frame(tab_control)
+    tab_control.add(emporio_tab, text="Empório Astral")
+
     # Guia para Capital Six
     capital_six_tab = ttk.Frame(tab_control)
     tab_control.add(capital_six_tab, text="Capital Six")
@@ -37,8 +42,9 @@ def main():
     bancos_tab = ttk.Frame(tab_control)
     tab_control.add(bancos_tab, text="   Bancos   ")
 
-    app = MenuCapitalSix(capital_six_tab)
     app = MenuLojao(lojao_tab)
+    app = MenuEmporio(emporio_tab)
+    app = MenuCapitalSix(capital_six_tab)
     app = MenuQualitplacas(qualitplacas_tab)
     app = MenuBancos(bancos_tab)
 

@@ -9,8 +9,8 @@ from process_sicredi import process_sicredi
 from process_safra import process_safra
 
 bancos = [
-    "SICREDI",
-    "SAFRA",
+    "Sicredi",
+    "Safra",
 ]
 
 
