@@ -51,14 +51,14 @@ def process_viacredi(dados_pdf, progress_bar, aplicar_substituicoes):
                 progress_value = (current_page / total_pages) * 100
                 progress_bar["value"] = progress_value
 
+                if "Os dados" in linha:
+                    stop_process = True
+                    break
+
                 data_list.append(data)
                 descricao_list.append(descricao)
                 recebimento_list.append(recebimento)
                 pagamento_list.append(pagamento)
-
-                if "Os dados" in linha:
-                    stop_process = True
-                    break
 
         if stop_process:
             break
