@@ -8,12 +8,9 @@ import pandas as pd
 from process_sicredi import process_sicredi
 from process_safra import process_safra
 from process_safra_internacional import process_safra_internacional
+from process_viacredi import process_viacredi
 
-bancos = [
-    "Sicredi",
-    "Safra",
-    "Safra Internacional"
-]
+bancos = ["Viacredi", "Sicredi", "Safra", "Safra Internacional"]
 
 
 class MenuBancos:
@@ -125,7 +122,7 @@ class MenuBancos:
             self.process_button.config(state="disabled")
 
     def check_remover_virgulas(self, event=None):
-        if self.selected_empresa_var.get() == "Safra" or self.selected_empresa_var.get() == "Safra Internacional" :
+        if self.selected_empresa_var.get() == "Safra Internacional":
             self.toggle_substituicoes_button.config(state="disabled")
         else:
             self.toggle_substituicoes_button.config(state="normal")
@@ -146,16 +143,27 @@ class MenuBancos:
                 # Passe o valor de aplicar_substituicoes para o processamento do banco
                 if banco_selecionado == "Sicredi":
                     self.empresa_df = process_sicredi(
-                        dados_empresa_pdf, self.progress_bar, self.aplicar_substituicoes.get()
+                        dados_empresa_pdf,
+                        self.progress_bar,
+                        self.aplicar_substituicoes.get(),
                     )
 
                 if banco_selecionado == "Safra":
                     self.empresa_df = process_safra(
-                        dados_empresa_pdf, self.progress_bar)
+                        dados_empresa_pdf, self.progress_bar
+                    )
 
                 if banco_selecionado == "Safra Internacional":
                     self.empresa_df = process_safra_internacional(
-                        dados_empresa_pdf, self.progress_bar)
+                        dados_empresa_pdf, self.progress_bar
+                    )
+
+                if banco_selecionado == "Viacredi":
+                    self.empresa_df = process_viacredi(
+                        dados_empresa_pdf,
+                        self.progress_bar,
+                        self.aplicar_substituicoes.get(),
+                    )
 
         if self.empresa_df is not None:
             save_path = filedialog.asksaveasfilename(
