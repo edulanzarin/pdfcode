@@ -124,18 +124,19 @@ class MenuBancos:
             with open(self.empresa_file_path, "rb") as empresa_pdf_file:
                 dados_empresa_pdf = PyPDF2.PdfReader(empresa_pdf_file)
 
-                if banco_selecionado == "SICREDI":
+                if banco_selecionado == "Sicredi":
                     self.empresa_df = process_sicredi(
                         dados_empresa_pdf, self.progress_bar
                     )
-                if banco_selecionado == "SAFRA":
+                if banco_selecionado == "Safra":
                     self.empresa_df = process_safra(
                         dados_empresa_pdf, self.progress_bar
                     )
 
         if self.empresa_df is not None:
             save_path = filedialog.asksaveasfilename(
-                defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")]
+                defaultextension=".xlsx",
+                filetypes=[("Excel files", "*.xlsx")],
             )
             if not save_path:
                 self.status_label.config(text="Nenhum local de salvamento selecionado.")
