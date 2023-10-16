@@ -67,9 +67,9 @@ class MenuCapitalSix:
         self.process_button.pack()
 
         status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        status_frame.pack(pady=30)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
     def select_empresa_pdf(self):

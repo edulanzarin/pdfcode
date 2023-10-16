@@ -92,9 +92,9 @@ class MenuLojao:
         self.process_button.config(state="disabled")
 
         status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        status_frame.pack(pady=30)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
         self.check_process_button_state()

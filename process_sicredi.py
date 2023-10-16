@@ -1,9 +1,6 @@
 import pandas as pd
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill
 
-
-def process_sicredi(dados_pdf, progress_bar):
+def process_sicredi(dados_pdf, progress_bar, aplicar_substituicoes):
     data_list = []
     descricao_list = []
     valor_list = []
@@ -27,6 +24,7 @@ def process_sicredi(dados_pdf, progress_bar):
                     break  # Parar de processar quando encontrar "Saldo da conta"
 
                 data = partes[0]
+                descricao = " ".join(partes[1:-2])
 
                 if "-" in partes[-2]:
                     pagamento = partes[-2]
@@ -35,41 +33,11 @@ def process_sicredi(dados_pdf, progress_bar):
                     pagamento = ""
                     valor = partes[-2]
 
-                substituicoes = [
-                    ".10",
-                    ".20",
-                    ".30",
-                    ".40",
-                    ".50",
-                    ".60",
-                    ".70",
-                    ".80",
-                    ".90",
-                ]  # Adicione mais substituições se necessário
+                if aplicar_substituicoes:
+                    valor, pagamento = substituir_lista([valor, pagamento])
+                    valor, pagamento = substituir_virgula_por_ponto([valor, pagamento])
 
-                valor = (
-                    valor.replace(".", "")
-                    .replace(",", ".")
-                    .replace(".00", "")
-                    .replace("-", "")
-                )
-
-                for substituicao in substituicoes:
-                    if valor.endswith(substituicao):
-                        valor = valor[:-2] + substituicao[-2]
-
-                pagamento = (
-                    pagamento.replace(".", "")
-                    .replace(",", ".")
-                    .replace(".00", "")
-                    .replace("-", "")
-                )
-
-                for substituicao in substituicoes:
-                    if pagamento.endswith(substituicao):
-                        pagamento = pagamento[:-2] + substituicao[-2]
-
-                descricao = " ".join(partes[1:-2])
+                pagamento = pagamento.replace("-", "")
 
                 current_page += 1
                 progress_value = (current_page / total_pages) * 100
@@ -83,6 +51,12 @@ def process_sicredi(dados_pdf, progress_bar):
         if not linhas_imprimir:
             break  # Parar de processar páginas subsequentes
 
+    # Chamar a função `substituir_lista` antes de criar o DataFrame, se as substituições forem aplicadas
+    if aplicar_substituicoes:
+        valor_list = substituir_virgula_por_ponto(valor_list)
+        pagamento_list = substituir_virgula_por_ponto(pagamento_list)
+
+
     # Criar um DataFrame com os dados
     df = pd.DataFrame(
         {
@@ -95,3 +69,37 @@ def process_sicredi(dados_pdf, progress_bar):
     progress_bar["value"] = 100
 
     return df
+
+def substituir_lista(valores_ou_pagamentos):
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento = valores_ou_pagamentos[i]
+        # Remova apenas os pontos de milhar (substitua "." por uma string vazia)
+        valor_ou_pagamento = valor_ou_pagamento.replace(".", "")
+        valores_ou_pagamentos[i] = valor_ou_pagamento
+    return valores_ou_pagamentos
+
+def substituir_virgula_por_ponto(valores_ou_pagamentos):
+    substituicoes = [
+        ".10",
+        ".20",
+        ".30",
+        ".40",
+        ".50",
+        ".60",
+        ".70",
+        ".80",
+        ".90",
+    ]
+
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento_sem = valores_ou_pagamentos[i]
+        # Substitua a vírgula por ponto no formato decimal
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(",", ".")
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(".00", "")
+
+        for substituicao in substituicoes:
+            if valor_ou_pagamento_sem.endswith(substituicao):
+                valor_ou_pagamento_sem = valor_ou_pagamento_sem[:-2] + substituicao[-2]
+        valores_ou_pagamentos[i] = valor_ou_pagamento_sem
+    return valores_ou_pagamentos
+
