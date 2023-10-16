@@ -150,7 +150,9 @@ class MenuBancos:
 
                 if banco_selecionado == "Safra":
                     self.empresa_df = process_safra(
-                        dados_empresa_pdf, self.progress_bar
+                        dados_empresa_pdf,
+                        self.progress_bar,
+                        self.aplicar_substituicoes.get(),
                     )
 
                 if banco_selecionado == "Safra Internacional":

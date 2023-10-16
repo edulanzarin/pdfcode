@@ -3,7 +3,7 @@ import re
 
 
 # Função para processar uma página do PDF
-def process_safra(dados_pdf, progress_bar):
+def process_safra(dados_pdf, progress_bar, aplicar_substituicoes):
     data_list = []
     descricao_list = []
     valor_list = []
@@ -57,36 +57,14 @@ def process_safra(dados_pdf, progress_bar):
                             " ".join(descricao_anterior) + " " + " ".join(partes[0:-2])
                         )
                         data = last_date
-                        
-                    substituições = [
-                        ".10",
-                        ".20",
-                        ".30",
-                        ".40",
-                        ".50",
-                        ".60",
-                        ".70",
-                        ".80",
-                        ".90",
-                    ]
-                    valor = (
-                        valor.replace(".", "")
-                        .replace(",", ".")
-                        .replace(".00", "")
-                        .replace("-", "")
-                    )
-                    for substituicao in substituições:
-                        if valor.endswith(substituicao):
-                            valor = valor[:-2] + substituicao[-2]
-                    pagamento = (
-                        pagamento.replace(".", "")
-                        .replace(",", ".")
-                        .replace(".00", "")
-                        .replace("-", "")
-                    )
-                    for substituicao in substituições:
-                        if pagamento.endswith(substituicao):
-                            pagamento = pagamento[:-2] + substituicao[-2]
+
+                    if aplicar_substituicoes:
+                        valor, pagamento = substituir_lista([valor, pagamento])
+                        valor, pagamento = substituir_virgula_por_ponto(
+                            [valor, pagamento]
+                        )
+
+                    pagamento = pagamento.replace("-", "")
 
                     current_page += 1
                     progress_value = (current_page / total_pages) * 100
@@ -108,3 +86,38 @@ def process_safra(dados_pdf, progress_bar):
     progress_bar["value"] = 100
 
     return df
+
+
+def substituir_lista(valores_ou_pagamentos):
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento = valores_ou_pagamentos[i]
+        # Remova apenas os pontos de milhar (substitua "." por uma string vazia)
+        valor_ou_pagamento = valor_ou_pagamento.replace(".", "")
+        valores_ou_pagamentos[i] = valor_ou_pagamento
+    return valores_ou_pagamentos
+
+
+def substituir_virgula_por_ponto(valores_ou_pagamentos):
+    substituicoes = [
+        ".10",
+        ".20",
+        ".30",
+        ".40",
+        ".50",
+        ".60",
+        ".70",
+        ".80",
+        ".90",
+    ]
+
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento_sem = valores_ou_pagamentos[i]
+        # Substitua a vírgula por ponto no formato decimal
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(",", ".")
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(".00", "")
+
+        for substituicao in substituicoes:
+            if valor_ou_pagamento_sem.endswith(substituicao):
+                valor_ou_pagamento_sem = valor_ou_pagamento_sem[:-2] + substituicao[-2]
+        valores_ou_pagamentos[i] = valor_ou_pagamento_sem
+    return valores_ou_pagamentos
