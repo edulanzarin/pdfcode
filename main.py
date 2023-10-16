@@ -11,11 +11,10 @@ from MenuEmporio import MenuEmporio
 
 def main():
     root = tk.Tk()
-    root.title("Menu Lateral")
-    root.title("PDFCode")
+    root.title("PDF Tech")
     root.geometry("700x470")
-    icon_path = r".\assets\minecraft.ico"
-    root.iconbitmap(icon_path)
+    # icon_path = r".\assets\minecraft.ico"
+    # root.iconbitmap(icon_path)
     style = ThemedStyle(root)
     style.set_theme("arc")
 
