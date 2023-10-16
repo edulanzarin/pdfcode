@@ -7,10 +7,12 @@ import os
 import pandas as pd
 from process_sicredi import process_sicredi
 from process_safra import process_safra
+from process_safra_internacional import process_safra_internacional
 
 bancos = [
     "Sicredi",
     "Safra",
+    "Safra Internacional"
 ]
 
 
@@ -28,6 +30,9 @@ class MenuBancos:
 
         self.selected_empresa_var = tk.StringVar(self.root)
         self.selected_empresa_var.set("")
+
+        self.aplicar_substituicoes = tk.BooleanVar()
+        self.aplicar_substituicoes.set(False)
 
         style = ThemedStyle(self.root)
         style.set_theme("arc")
@@ -70,11 +75,11 @@ class MenuBancos:
 
         self.select_empresa_button = ttk.Button(
             select_frame,
-            text="Relatório",
+            text="Selecionar Extrato",
             command=self.select_empresa_pdf,
             width=25,
         )
-        self.select_empresa_button.pack(side="left", padx=5)
+        self.select_empresa_button.pack(side="left")
 
         self.process_button_frame = ttk.Frame(self.root)
         self.process_button_frame.pack(pady=10)
@@ -86,12 +91,20 @@ class MenuBancos:
             width=25,
         )
         self.process_button.pack()
-        self.process_button.config(state="disabled")
+
+        self.toggle_substituicoes_button = ttk.Checkbutton(
+            self.root,
+            text="Remover vírgulas",
+            variable=self.aplicar_substituicoes,
+        )
+        self.toggle_substituicoes_button.pack(pady=10)
+
+        self.empresa_menu.bind("<<ComboboxSelected>>", self.check_remover_virgulas)
 
         status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        status_frame.pack(pady=30)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
         self.check_process_button_state()
@@ -111,31 +124,43 @@ class MenuBancos:
         else:
             self.process_button.config(state="disabled")
 
+    def check_remover_virgulas(self, event=None):
+        if self.selected_empresa_var.get() == "Safra" or self.selected_empresa_var.get() == "Safra Internacional" :
+            self.toggle_substituicoes_button.config(state="disabled")
+        else:
+            self.toggle_substituicoes_button.config(state="normal")
+
     def processar_pdf_thread(self):
         self.process_button.config(state="disabled")
         pdf_thread = threading.Thread(target=self.processar_pdf)
         pdf_thread.start()
 
     def processar_pdf(self):
-        self.progress_bar.pack(pady=20, padx=20, fill=tk.X)
+        self.progress_bar.pack(pady=10, padx=20, fill=tk.X)
 
         banco_selecionado = self.selected_empresa_var.get()
         if self.empresa_file_path:
             with open(self.empresa_file_path, "rb") as empresa_pdf_file:
                 dados_empresa_pdf = PyPDF2.PdfReader(empresa_pdf_file)
 
-                if banco_selecionado == "SICREDI":
+                # Passe o valor de aplicar_substituicoes para o processamento do banco
+                if banco_selecionado == "Sicredi":
                     self.empresa_df = process_sicredi(
-                        dados_empresa_pdf, self.progress_bar
+                        dados_empresa_pdf, self.progress_bar, self.aplicar_substituicoes.get()
                     )
-                if banco_selecionado == "SAFRA":
+
+                if banco_selecionado == "Safra":
                     self.empresa_df = process_safra(
-                        dados_empresa_pdf, self.progress_bar
-                    )
+                        dados_empresa_pdf, self.progress_bar)
+
+                if banco_selecionado == "Safra Internacional":
+                    self.empresa_df = process_safra_internacional(
+                        dados_empresa_pdf, self.progress_bar)
 
         if self.empresa_df is not None:
             save_path = filedialog.asksaveasfilename(
-                defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")]
+                defaultextension=".xlsx",
+                filetypes=[("Excel files", "*.xlsx")],
             )
             if not save_path:
                 self.status_label.config(text="Nenhum local de salvamento selecionado.")

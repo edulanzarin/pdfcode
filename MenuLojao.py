@@ -49,7 +49,7 @@ class MenuLojao:
         button_frame.pack(pady=20)
 
         self.start_label = ttk.Label(
-            button_frame, text="Escolher Loja", font=("Arial", 10)
+            button_frame, text="Selecionar Loja", font=("Arial", 10)
         )
         self.start_label.pack(side="left", padx=5)
 
@@ -73,7 +73,7 @@ class MenuLojao:
 
         self.select_empresa_button = ttk.Button(
             select_frame,
-            text="Relatório",
+            text="Selecionar Relatório",
             command=self.select_empresa_pdf,
             width=25,
         )
@@ -92,9 +92,9 @@ class MenuLojao:
         self.process_button.config(state="disabled")
 
         status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        status_frame.pack(pady=30)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
         self.check_process_button_state()

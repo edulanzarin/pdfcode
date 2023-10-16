@@ -11,9 +11,15 @@ from MenuEmporio import MenuEmporio
 
 def main():
     root = tk.Tk()
+<<<<<<< HEAD
     root.title("PDF Tech")
     root.geometry("700x470")
     # icon_path = r".\assets\minecraft.ico"
+=======
+    root.title("Sigma")
+    root.geometry("700x470")
+    # icon_path = r".\assets\icon.ico"
+>>>>>>> d4e329638e563a8fa45599feab837422cfbd0a99
     # root.iconbitmap(icon_path)
     style = ThemedStyle(root)
     style.set_theme("arc")

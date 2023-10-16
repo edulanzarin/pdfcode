@@ -37,7 +37,7 @@ class MenuCapitalSix:
 
         self.select_empresa_button = ttk.Button(
             button_frame,
-            text="Relatório",
+            text="Selecionar Relatório",
             command=self.select_empresa_pdf,
             width=25,
             # padding=10,
@@ -46,7 +46,7 @@ class MenuCapitalSix:
 
         self.select_francesinha_button = ttk.Button(
             button_frame,
-            text="Francesinha",
+            text="Selecionar Francesinha",
             command=self.select_francesinha_pdf,
             width=25,
             # padding=10,
@@ -67,9 +67,9 @@ class MenuCapitalSix:
         self.process_button.pack()
 
         status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        status_frame.pack(pady=30)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
     def select_empresa_pdf(self):
