@@ -37,7 +37,7 @@ class MenuCapitalSix:
 
         self.select_empresa_button = ttk.Button(
             button_frame,
-            text="Relatório",
+            text="Selecionar Relatório",
             command=self.select_empresa_pdf,
             width=25,
             # padding=10,
@@ -46,7 +46,7 @@ class MenuCapitalSix:
 
         self.select_francesinha_button = ttk.Button(
             button_frame,
-            text="Francesinha",
+            text="Selecionar Francesinha",
             command=self.select_francesinha_pdf,
             width=25,
             # padding=10,

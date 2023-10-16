@@ -37,7 +37,7 @@ class MenuEmporio:
 
         self.select_empresa_button = ttk.Button(
             button_frame,
-            text="Relatório",
+            text="Selecionar Relatório",
             command=self.select_empresa_pdf,
             width=25,
         )
