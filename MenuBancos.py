@@ -7,10 +7,12 @@ import os
 import pandas as pd
 from process_sicredi import process_sicredi
 from process_safra import process_safra
+from process_safra_internacional import process_safra_internacional
 
 bancos = [
     "Sicredi",
     "Safra",
+    "Safra Internacional"
 ]
 
 
@@ -97,6 +99,8 @@ class MenuBancos:
         )
         self.toggle_substituicoes_button.pack(pady=10)
 
+        self.empresa_menu.bind("<<ComboboxSelected>>", self.check_remover_virgulas)
+
         status_frame = ttk.Frame(self.root)
         status_frame.pack(pady=30)
 
@@ -120,6 +124,12 @@ class MenuBancos:
         else:
             self.process_button.config(state="disabled")
 
+    def check_remover_virgulas(self, event=None):
+        if self.selected_empresa_var.get() == "Safra" or self.selected_empresa_var.get() == "Safra Internacional" :
+            self.toggle_substituicoes_button.config(state="disabled")
+        else:
+            self.toggle_substituicoes_button.config(state="normal")
+
     def processar_pdf_thread(self):
         self.process_button.config(state="disabled")
         pdf_thread = threading.Thread(target=self.processar_pdf)
@@ -141,8 +151,11 @@ class MenuBancos:
 
                 if banco_selecionado == "Safra":
                     self.empresa_df = process_safra(
-                        dados_empresa_pdf, self.progress_bar, self.aplicar_substituicoes.get()
-                    )
+                        dados_empresa_pdf, self.progress_bar)
+
+                if banco_selecionado == "Safra Internacional":
+                    self.empresa_df = process_safra_internacional(
+                        dados_empresa_pdf, self.progress_bar)
 
         if self.empresa_df is not None:
             save_path = filedialog.asksaveasfilename(

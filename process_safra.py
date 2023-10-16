@@ -56,6 +56,8 @@ def process_safra(dados_pdf, progress_bar):
                         descricao = (
                             " ".join(descricao_anterior) + " " + " ".join(partes[0:-2])
                         )
+                        data = last_date
+                        
                     substituições = [
                         ".10",
                         ".20",
@@ -99,7 +101,7 @@ def process_safra(dados_pdf, progress_bar):
         {
             "DATA": data_list,
             "DESCRICAO": descricao_list,
-            "VALOR": valor_list,
+            "RECEBIMENTO": valor_list,
             "PAGAMENTO": pagamento_list,
         }
     )
