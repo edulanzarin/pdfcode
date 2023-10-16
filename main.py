@@ -14,8 +14,8 @@ def main():
     root.title("Menu Lateral")
     root.title("Sigma")
     root.geometry("700x470")
-    icon_path = r".\assets\icon.ico"
-    root.iconbitmap(icon_path)
+    # icon_path = r".\assets\icon.ico"
+    # root.iconbitmap(icon_path)
     style = ThemedStyle(root)
     style.set_theme("arc")
 

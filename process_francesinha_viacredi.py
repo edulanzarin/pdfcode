@@ -24,6 +24,10 @@ def process_francesinha_viacredi(dados_pdf, progress_bar):
                     if partes[-1] != "0,00":
                         diferenca = partes[-1]  # Use [-1] para obter o último item
 
+                        current_page += 1
+                        progress_value = (current_page / total_pages) * 100
+                        progress_bar["value"] = progress_value
+
                         diferenca_list.append(diferenca)
 
     # Criar um DataFrame com os dados

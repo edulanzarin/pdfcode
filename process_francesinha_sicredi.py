@@ -1,5 +1,4 @@
 import pandas as pd
-from tqdm import tqdm
 
 
 def process_francesinha_sicredi(dados_pdf, progress_bar):
@@ -10,7 +9,7 @@ def process_francesinha_sicredi(dados_pdf, progress_bar):
     total_pages = len(dados_pdf.pages)
     current_page = 0
 
-    for pagina in tqdm(dados_pdf.pages, total=total_pages, desc="Processando"):
+    for pagina in dados_pdf.pages:
         texto_pagina = pagina.extract_text()
         linhas = texto_pagina.split("\n")
         linhas_imprimir = True
@@ -43,15 +42,13 @@ def process_francesinha_sicredi(dados_pdf, progress_bar):
                         diferenca = None
 
                     if diferenca != 0:
+                        current_page += 1
+                        progress_value = (current_page / total_pages) * 100
+                        progress_bar["value"] = progress_value
+                        
                         valor_list.append(valor)
                         recebido_list.append(recebido)
                         diferenca_list.append(diferenca)
-
-            current_page += 1
-            progress_value = (current_page / total_pages) * 100
-
-            # Atualize a barra de progresso
-            progress_bar["value"] = progress_value
 
     df = pd.DataFrame(
         {"VALOR": valor_list, "RECEBIDO": recebido_list, "DIFERENCA": diferenca_list}
