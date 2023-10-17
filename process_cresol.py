@@ -27,7 +27,7 @@ def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
                 stop_process = True
                 break
 
-            if len(partes) >= 5 and "SALDO ANTERIOR" not in linha:
+            if len(partes) >= 5 and "SALDO ANTERIOR" not in linha and "página" not in linha:
                 if linha_num <= linhas_a_pular:
                     continue
 

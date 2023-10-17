@@ -1,5 +1,15 @@
 import pandas as pd
 import re
+import datetime
+
+def converter_data_americana_para_formato_desejado(data_americana):
+    try:
+        data_formato_americano = datetime.datetime.strptime(data_americana, "%m/%d/%Y")
+        data_formato_desejado = data_formato_americano.strftime("%d/%m/%Y")
+        return data_formato_desejado
+    except ValueError:
+        # Trate qualquer erro de formato de data aqui
+        return data_americana  # Retorne a data original se houver erro
 
 def process_safra_internacional(dados_pdf, progress_bar):
     data_list = []
@@ -38,6 +48,7 @@ def process_safra_internacional(dados_pdf, progress_bar):
                                 valor = partes[-1]
                                 pagamento = ""
                             data = re.sub(r"[^0-9/]", "", partes[0])
+                            data = converter_data_americana_para_formato_desejado(data)  # Converter a data
                             descricao = " ".join(partes[1:-2])
                             last_date = data
                         else:
