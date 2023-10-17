@@ -1,7 +1,7 @@
+import re
 import pandas as pd
 
-
-def process_viacredi(dados_pdf, progress_bar, aplicar_substituicoes):
+def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
     data_list = []
     descricao_list = []
     pagamento_list = []
@@ -16,24 +16,46 @@ def process_viacredi(dados_pdf, progress_bar, aplicar_substituicoes):
         linhas = texto_pagina.split("\n")
 
         if pagina_num == 1:
-            linhas_a_pular = 6
+            linhas_a_pular = 24
         else:
-            linhas_a_pular = 1
+            linhas_a_pular = 6
 
         for linha_num, linha in enumerate(linhas, 1):
             partes = linha.split(" ")
-            if len(partes) >= 5:
+
+            if "(=)" in linha or "(+)" in linha or "(-)" in linha:
+                stop_process = True
+                break
+
+            if len(partes) >= 5 and "SALDO ANTERIOR" not in linha:
                 if linha_num <= linhas_a_pular:
                     continue
 
-                data = partes[-4]
-                if "-" in partes[-3]:
-                    pagamento = partes[-3]
-                    recebimento = ""
-                else:
-                    recebimento = partes[-3]
+                valores_monetarios = re.findall(r'\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b', linha)
+
+                for valor in valores_monetarios:
+                    # Remove o valor monetário da linha
+                    linha = re.sub(r'\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b', '', linha)
+
+                # Agora a variável 'linha' contém o texto restante após a remoção dos valores monetários
+
+                # Divida a linha em partes, usando o primeiro espaço como separador
+                partes = linha.split(" ", 1)
+
+                # A primeira parte (partes[0]) é a data e a segunda parte (partes[1]) é a descrição
+                data = partes[0]
+                descricao = partes[1]
+
+                # Verifique se a descrição contém " C " ou " D "
+                if " C " in descricao:
                     pagamento = ""
-                descricao = " ".join(partes[0:-4])
+                    recebimento = valor
+                elif " D " in descricao:
+                    recebimento = ""
+                    pagamento = valor
+                else:
+                    pagamento = ""
+                    recebimento = ""
 
                 if aplicar_substituicoes:
                     recebimento, pagamento = substituir_lista([recebimento, pagamento])
@@ -41,35 +63,29 @@ def process_viacredi(dados_pdf, progress_bar, aplicar_substituicoes):
                         [recebimento, pagamento]
                     )
 
-                pagamento = pagamento.replace("-", "")
-
                 current_page += 1
                 progress_value = (current_page / total_pages) * 100
                 progress_bar["value"] = progress_value
 
-                if "Os dados" in linha:
-                    stop_process = True
-                    break
-
+                # Adicione os valores às listas
                 data_list.append(data)
                 descricao_list.append(descricao)
-                recebimento_list.append(recebimento)
                 pagamento_list.append(pagamento)
+                recebimento_list.append(recebimento)
 
-        if stop_process:
-            break
+            if stop_process:
+                break
 
-    df = pd.DataFrame(
-        {
-            "DATA": data_list,
-            "DESCRICAO": descricao_list,
-            "RECEBIMENTO": recebimento_list,
-            "PAGAMENTO": pagamento_list,
-        }
-    )
+    # Crie um DataFrame com os dados coletados
+    df = pd.DataFrame({
+        'DATA': data_list,
+        'DESCRICAO': descricao_list,
+        'PAGAMENTO': pagamento_list,
+        'RECEBIMENTO': recebimento_list
+    })
+
     progress_bar["value"] = 100
     return df
-
 
 def substituir_lista(valores_ou_pagamentos):
     for i in range(len(valores_ou_pagamentos)):
@@ -78,7 +94,6 @@ def substituir_lista(valores_ou_pagamentos):
         valor_ou_pagamento = valor_ou_pagamento.replace(".", "")
         valores_ou_pagamentos[i] = valor_ou_pagamento
     return valores_ou_pagamentos
-
 
 def substituir_virgula_por_ponto(valores_ou_pagamentos):
     substituicoes = [

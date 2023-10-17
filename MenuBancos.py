@@ -9,8 +9,9 @@ from process_sicredi import process_sicredi
 from process_safra import process_safra
 from process_safra_internacional import process_safra_internacional
 from process_viacredi import process_viacredi
+from process_cresol import process_cresol
 
-bancos = ["Viacredi", "Sicredi", "Safra", "Safra Internacional"]
+bancos = ["Viacredi", "Sicredi", "Cresol", "Safra", "Safra Internacional"]
 
 
 class MenuBancos:
@@ -162,6 +163,13 @@ class MenuBancos:
 
                 if banco_selecionado == "Viacredi":
                     self.empresa_df = process_viacredi(
+                        dados_empresa_pdf,
+                        self.progress_bar,
+                        self.aplicar_substituicoes.get(),
+                    )
+
+                if banco_selecionado == "Cresol":
+                    self.empresa_df = process_cresol(
                         dados_empresa_pdf,
                         self.progress_bar,
                         self.aplicar_substituicoes.get(),

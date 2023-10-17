@@ -26,7 +26,7 @@ def open_file_and_modify_cells():
             modified_df = df.copy()
 
             # Atualize a coluna "DEB" com 1496 onde a coluna "PAGAMENTO" é igual a 2
-            modified_df.loc[modified_df["PAGAMENTO"] == 2, "DEB"] = 1496
+            modified_df.loc[modified_df["DESCRICAO"].str.contains("liquidacao boleto", case=False), "DEB"] = 1496
 
             # Abra a caixa de diálogo para escolher onde salvar o novo arquivo
             save_path = filedialog.asksaveasfilename(

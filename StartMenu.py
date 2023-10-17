@@ -15,20 +15,28 @@ class StartMenu:
         self.space_label = ttk.Label(self.root, text="")
         self.space_label.pack(pady=25)
 
-        status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=30)
+        image_frame = ttk.Frame(self.root)
+        image_frame.pack(pady=30)
 
-        # Carregue o GIF usando PIL
-        image = Image.open(r".\assets\pdf.png")  # Substitua pelo caminho do seu GIF
-        width, height = 250, 150  # Tamanho desejado (ajuste conforme necessário)
-        image = image.resize((width, height))  # Redimensiona a imagem suavemente
+        image = Image.open(r".\assets\pdf.png")
+        width, height = 150, 90
+        image = image.resize((width, height))
 
         photo = ImageTk.PhotoImage(image)
 
+        self.image_label = ttk.Label(image_frame, image=photo)
+        self.image_label.photo = photo
+        self.image_label.pack()
+
+        status_frame = ttk.Frame(self.root)
+        status_frame.pack(pady=30)
+
         # Crie o Label para exibir o GIF
-        self.status_label = ttk.Label(status_frame, image=photo)
-        self.status_label.photo = photo  # Mantenha uma referência para evitar que o GIF seja coletado pelo garbage collector
+        self.status_label = ttk.Label(status_frame)
         self.status_label.pack()
+
+    def set_status(self, text):
+        self.status_label.config(text=text)
 
 
 def main():
