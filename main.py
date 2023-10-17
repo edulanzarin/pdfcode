@@ -7,6 +7,7 @@ from MenuLojao import MenuLojao
 from MenuQualitplacas import MenuQualitplacas
 from MenuBancos import MenuBancos
 from MenuEmporio import MenuEmporio
+from StartMenu import StartMenu
 
 
 def main():
@@ -20,6 +21,10 @@ def main():
 
     tab_control = ttk.Notebook(root)
     tab_control.pack(expand=1, fill="both")
+
+    # Guia para início
+    start_tab = ttk.Frame(tab_control)
+    tab_control.add(start_tab, text="   Início   ")
 
     # Guia para Lojão
     lojao_tab = ttk.Frame(tab_control)
@@ -46,6 +51,7 @@ def main():
     app = MenuCapitalSix(capital_six_tab)
     app = MenuQualitplacas(qualitplacas_tab)
     app = MenuBancos(bancos_tab)
+    app = StartMenu(start_tab)
 
     root.mainloop()
 
