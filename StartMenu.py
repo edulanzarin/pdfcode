@@ -12,11 +12,17 @@ class StartMenu:
         self.title_label = ttk.Label(self.root, text="Sigma", font=("Arial", 12))
         self.title_label.pack(pady=10)
 
+        self.space_label = ttk.Label(self.root, text="")
+        self.space_label.pack(pady=25)
+
         status_frame = ttk.Frame(self.root)
         status_frame.pack(pady=30)
 
         # Carregue o GIF usando PIL
         image = Image.open(r".\assets\pdf.png")  # Substitua pelo caminho do seu GIF
+        width, height = 250, 150  # Tamanho desejado (ajuste conforme necessário)
+        image = image.resize((width, height))  # Redimensiona a imagem suavemente
+
         photo = ImageTk.PhotoImage(image)
 
         # Crie o Label para exibir o GIF
