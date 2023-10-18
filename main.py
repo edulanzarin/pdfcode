@@ -10,6 +10,7 @@ from MenuBancos import MenuBancos
 from MenuEmporio import MenuEmporio
 from StartMenu import StartMenu
 
+
 def main():
     root = tk.Tk()
     root.title("Sigma")
@@ -58,13 +59,17 @@ def main():
 
     root.mainloop()
 
+
 def check_validate(start_menu, tab_control):
     data_validade = datetime.date(2023, 12, 31)
     if data_validade < datetime.date.today():
         start_menu.set_status("Expirado")
         for tab_id in tab_control.tabs():
-            if tab_id != tab_control.tabs()[0]:  # Não desabilite a guia "Início" (StartMenu)
+            if (
+                tab_id != tab_control.tabs()[0]
+            ):  # Não desabilite a guia "Início" (StartMenu)
                 tab_control.tab(tab_id, state="disabled")
+
 
 if __name__ == "__main__":
     main()

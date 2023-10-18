@@ -1,6 +1,7 @@
 import re
 import pandas as pd
 
+
 def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
     data_list = []
     descricao_list = []
@@ -27,26 +28,26 @@ def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
                 stop_process = True
                 break
 
-            if len(partes) >= 5 and "SALDO ANTERIOR" not in linha and "página" not in linha:
+            if (
+                len(partes) >= 5
+                and "SALDO ANTERIOR" not in linha
+                and "página" not in linha
+            ):
                 if linha_num <= linhas_a_pular:
                     continue
 
-                valores_monetarios = re.findall(r'\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b', linha)
+                valores_monetarios = re.findall(
+                    r"\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b", linha
+                )
 
                 for valor in valores_monetarios:
-                    # Remove o valor monetário da linha
-                    linha = re.sub(r'\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b', '', linha)
+                    linha = re.sub(r"\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b", "", linha)
 
-                # Agora a variável 'linha' contém o texto restante após a remoção dos valores monetários
-
-                # Divida a linha em partes, usando o primeiro espaço como separador
                 partes = linha.split(" ", 1)
 
-                # A primeira parte (partes[0]) é a data e a segunda parte (partes[1]) é a descrição
                 data = partes[0]
                 descricao = partes[1]
 
-                # Verifique se a descrição contém " C " ou " D "
                 if " C " in descricao:
                     pagamento = ""
                     recebimento = valor
@@ -67,7 +68,6 @@ def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
                 progress_value = (current_page / total_pages) * 100
                 progress_bar["value"] = progress_value
 
-                # Adicione os valores às listas
                 data_list.append(data)
                 descricao_list.append(descricao)
                 pagamento_list.append(pagamento)
@@ -76,24 +76,26 @@ def process_cresol(dados_pdf, progress_bar, aplicar_substituicoes):
             if stop_process:
                 break
 
-    # Crie um DataFrame com os dados coletados
-    df = pd.DataFrame({
-        'DATA': data_list,
-        'DESCRICAO': descricao_list,
-        'PAGAMENTO': pagamento_list,
-        'RECEBIMENTO': recebimento_list
-    })
+    df = pd.DataFrame(
+        {
+            "DATA": data_list,
+            "DESCRICAO": descricao_list,
+            "RECEBIMENTO": recebimento_list,
+            "PAGAMENTO": pagamento_list,
+        }
+    )
 
     progress_bar["value"] = 100
     return df
 
+
 def substituir_lista(valores_ou_pagamentos):
     for i in range(len(valores_ou_pagamentos)):
         valor_ou_pagamento = valores_ou_pagamentos[i]
-        # Remova apenas os pontos de milhar (substitua "." por uma string vazia)
         valor_ou_pagamento = valor_ou_pagamento.replace(".", "")
         valores_ou_pagamentos[i] = valor_ou_pagamento
     return valores_ou_pagamentos
+
 
 def substituir_virgula_por_ponto(valores_ou_pagamentos):
     substituicoes = [

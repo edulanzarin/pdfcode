@@ -2,11 +2,10 @@ import pandas as pd
 import re
 
 
-def process_qualitplacas(dados_pdf, progress_bar):
+def process_qualitplacas(dados_pdf, progress_bar, aplicar_substituicoes):
     registros_qualitplacas = []
     linhas_imprimir = False
     linha_anterior_valor_zero = False
-    linhas_impressas = 0  # Dicionário para armazenar os valores por dia
     quebra_condicao = "QUALITPLACAS"
 
     total_pages = len(dados_pdf.pages)
@@ -55,46 +54,10 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                 valor = partes[1]
                                 credito = partes[1]
 
-                            valor = (
-                                valor.replace(".", "")
-                                .replace(",", ".")
-                                .replace(".00", "")
-                            )
-                            substituicoes = [
-                                ".10",
-                                ".20",
-                                ".30",
-                                ".40",
-                                ".50",
-                                ".60",
-                                ".70",
-                                ".80",
-                                ".90",
-                            ]  # Adicione mais substituições se necessário
-                            for substituicao in substituicoes:
-                                if valor.endswith(substituicao):
-                                    valor = valor[:-2] + substituicao[-2]
-                            credito = (
-                                credito.replace(".", "")
-                                .replace(",", ".")
-                                .replace(".00", "")
-                            )
-                            substituicoes = [
-                                ".10",
-                                ".20",
-                                ".30",
-                                ".40",
-                                ".50",
-                                ".60",
-                                ".70",
-                                ".80",
-                                ".90",
-                            ]  # Adicione mais substituições se necessário
-                            for substituicao in substituicoes:
-                                if credito.endswith(substituicao):
-                                    credito = credito[:-2] + substituicao[-2]
                             if (
                                 valor != "0"
+                                and valor != "0,00"
+                                and valor != "0,0"
                                 and "DESPESAS BANCARIA" not in linha
                                 and "ALUGUEIS MAQUINA" not in linha
                             ):
@@ -154,6 +117,14 @@ def process_qualitplacas(dados_pdf, progress_bar):
 
                                     nota = re.sub(r"[a-zA-Z]", "", nota)
 
+                                    if aplicar_substituicoes:
+                                        credito, valor = substituir_lista(
+                                            [credito, valor]
+                                        )
+                                        credito, valor = substituir_virgula_por_ponto(
+                                            [credito, valor]
+                                        )
+
                                     current_page += 1
                                     progress_value = (current_page / total_pages) * 100
                                     progress_bar["value"] = progress_value
@@ -168,8 +139,6 @@ def process_qualitplacas(dados_pdf, progress_bar):
                                         }
                                     )
 
-                linhas_impressas += 1
-
     df = pd.DataFrame(registros_qualitplacas)
     progress_bar["value"] = 100
 
@@ -177,3 +146,37 @@ def process_qualitplacas(dados_pdf, progress_bar):
     df_styled = df_styled.applymap(lambda x: "color: blue", subset=["DESCONTO"])
 
     return df_styled  # Certifique-se de que você está retornando o DataFrame aqui
+
+
+def substituir_lista(valores_ou_pagamentos):
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento = valores_ou_pagamentos[i]
+        valor_ou_pagamento = valor_ou_pagamento.replace(".", "")
+        valores_ou_pagamentos[i] = valor_ou_pagamento
+    return valores_ou_pagamentos
+
+
+def substituir_virgula_por_ponto(valores_ou_pagamentos):
+    substituicoes = [
+        ".10",
+        ".20",
+        ".30",
+        ".40",
+        ".50",
+        ".60",
+        ".70",
+        ".80",
+        ".90",
+    ]
+
+    for i in range(len(valores_ou_pagamentos)):
+        valor_ou_pagamento_sem = valores_ou_pagamentos[i]
+        # Substitua a vírgula por ponto no formato decimal
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(",", ".")
+        valor_ou_pagamento_sem = valor_ou_pagamento_sem.replace(".00", "")
+
+        for substituicao in substituicoes:
+            if valor_ou_pagamento_sem.endswith(substituicao):
+                valor_ou_pagamento_sem = valor_ou_pagamento_sem[:-2] + substituicao[-2]
+        valores_ou_pagamentos[i] = valor_ou_pagamento_sem
+    return valores_ou_pagamentos
