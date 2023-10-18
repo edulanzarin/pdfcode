@@ -18,16 +18,20 @@ class MenuQualitplacas:
         self.progress_bar.pack_forget()
         self.empresa_df = None
 
-        self.create_widgets()
+        self.aplicar_substituicoes = tk.BooleanVar()
+        self.aplicar_substituicoes.set(False)
+
         style = ThemedStyle(self.root)
         style.set_theme("arc")
+
+        self.create_widgets()
 
     def create_widgets(self):
         self.title_label = ttk.Label(self.root, text="Qualitplacas", font=("Arial", 12))
         self.title_label.pack(pady=10)
 
         self.space_label = ttk.Label(self.root, text="")
-        self.space_label.pack(pady=40)
+        self.space_label.pack(pady=35)
 
         button_frame = ttk.Frame(self.root)
         button_frame.pack(pady=30)
@@ -42,7 +46,7 @@ class MenuQualitplacas:
         self.select_empresa_button.grid(row=0, column=0)
 
         self.process_button_frame = ttk.Frame(self.root)
-        self.process_button_frame.pack(pady=20)
+        self.process_button_frame.pack(pady=10)
 
         self.process_button = ttk.Button(
             self.process_button_frame,
@@ -53,10 +57,17 @@ class MenuQualitplacas:
         )
         self.process_button.pack()
 
-        status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=40)
+        self.toggle_substituicoes_button = ttk.Checkbutton(
+            self.root,
+            text="Remover vírgulas",
+            variable=self.aplicar_substituicoes,
+        )
+        self.toggle_substituicoes_button.pack(pady=10)
 
-        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 12))
+        status_frame = ttk.Frame(self.root)
+        status_frame.pack(pady=30)
+
+        self.status_label = ttk.Label(status_frame, text="", font=("Arial", 10))
         self.status_label.pack()
 
     def select_empresa_pdf(self):
@@ -80,7 +91,7 @@ class MenuQualitplacas:
         pdf_thread.start()
 
     def processar_pdf(self):
-        self.progress_bar.pack(pady=20, padx=20, fill=tk.X)
+        self.progress_bar.pack(pady=15, padx=20, fill=tk.X)
 
         if self.empresa_file_path:
             with open(self.empresa_file_path, "rb") as empresa_pdf_file:
@@ -88,7 +99,9 @@ class MenuQualitplacas:
 
                 # Chame a função para processar o PDF da CAPITAL SIX
                 self.empresa_df = process_qualitplacas(
-                    dados_empresa_pdf, self.progress_bar
+                    dados_empresa_pdf,
+                    self.progress_bar,
+                    self.aplicar_substituicoes.get(),
                 )
 
         if self.empresa_df is not None:
