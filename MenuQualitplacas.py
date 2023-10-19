@@ -22,7 +22,7 @@ class MenuQualitplacas:
         self.aplicar_substituicoes.set(False)
 
         style = ThemedStyle(self.root)
-        style.set_theme("arc")
+        style.set_theme("vista")
 
         self.create_widgets()
 

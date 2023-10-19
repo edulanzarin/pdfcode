@@ -33,7 +33,7 @@ class MenuLojao:
         self.selected_empresa_var.set("")
 
         style = ThemedStyle(self.root)
-        style.set_theme("arc")
+        style.set_theme("vista")
 
         self.create_widgets()
 

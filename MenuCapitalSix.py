@@ -23,7 +23,7 @@ class MenuCapitalSix:
 
         self.create_widgets()
         style = ThemedStyle(self.root)
-        style.set_theme("arc")
+        style.set_theme("vista")
 
     def create_widgets(self):
         self.title_label = ttk.Label(self.root, text="Capital Six", font=("Arial", 12))
