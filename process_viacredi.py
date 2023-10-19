@@ -67,6 +67,7 @@ def process_viacredi(dados_pdf, progress_bar, aplicar_substituicoes):
             "PAGAMENTO": pagamento_list,
         }
     )
+
     progress_bar["value"] = 100
     return df
 

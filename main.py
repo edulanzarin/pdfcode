@@ -14,11 +14,12 @@ from StartMenu import StartMenu
 def main():
     root = tk.Tk()
     root.title("Sigma")
-    root.geometry("700x470")
+    # root.geometry("700x470")
+    root.state("zoomed")
     icon_path = r".\assets\icon.ico"
     root.iconbitmap(icon_path)
     style = ThemedStyle(root)
-    style.set_theme("arc")
+    style.set_theme("vista")
 
     tab_control = ttk.Notebook(root)
     tab_control.pack(expand=1, fill="both")
